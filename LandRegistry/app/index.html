@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>CryptoZombies front-end</title>
+    <script language="javascript" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script language="javascript" type="text/javascript" src="web3.min.js"></script>
+    <script language="javascript" type="text/javascript" src="cryptozombies_abi.js"></script>
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+
+    <!-- jQuery library -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+    <!-- Latest compiled JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  </head>
+  <body>
+
+    <nav class="navbar navbar-inverse">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <a class="navbar-brand" href="#">WebSiteName</a>
+        </div>
+        <ul class="nav navbar-nav">
+          <li class="active"><a href="#">Register Land</a></li>
+          <li><a href="#">Loan Against Land</a></li>
+        </ul>
+      </div>
+    </nav>
+
+      Land Address<input style="width:50%;" class="form-control" type="text" name="name"  id="address" required  >  
+  <br>
+
+  
+  <br>
+  Area <input style="width:50%;" class="form-control" type="text" name="description" id="area" required> <br>
+ 
+  <div id="address_proof" style="display: none;">
+  Upload proof of ownership : <input style="width:50%;" class="form-control" type="file" name="address_proof"  > <br>
+   
+  </div>
+ 
+  </fieldset>
+  <br/>
+  <button  type="button" style="width:50%;" id="availability" class="btn-info">Check Availability</button>
+  <button  type="button" style="width:50%; display: none;" id="submit" class="btn-info">Submit</button>
+    <button  type="button" style="width:50%; display: none;" id="contest" class="btn-info">Contest</button>
+            </div>          
+  <!-- input style="width:50%;" class="form-control btn btn-primary" type="button" name="upload" value="Check Availability"> -->
+
+    <div id="txStatus"></div>
+    <div id="zombies"></div>
+
+
+    <script>
+      var cryptoZombies;
+      var userAccount;
+
+      $('#availability').on('click', function() {
+        
+        // $('#txStatus').html("button is working ");
+        
+        var address = $('#address').val();
+        var area = $('#area').val();
+        $('#txStatus').html(address + area);
+        var is_available = checkLandAvailable(address, area);
+        if (is_available==true)
+        {
+          document.getElementById("address_proof").style.display = "block";
+        document.getElementById("availability").style.display = "none";  
+        document.getElementById("submit").style.display = "block";
+        
+        }
+        else {
+          document.getElementById("address_proof").style.display = "block";
+        document.getElementById("availability").style.display = "none";  
+        document.getElementById("contest").style.display = "block";
+        $('#txStatus').html("the land is already registered. add your address proof to contest.");
+        }
+
+       });
+            $('#submit').on('click', function() {
+        
+        $('#txStatus').html("button is working ");
+        document.getElementById("address_proof").style.display = "block";
+        // document.getElementById("page2").style.display = "block";  
+        // document.getElementById("page1").style.display = "none";
+        // document.getElementById("tandc").style.display = "block";
+        // $("html, body").animate({ scrollTop: 0 }, "slow");
+
+       });
+
+      function startApp() {
+        var landRegistryAddress = "YOUR_CONTRACT_ADDRESS";
+        landRegistry = new web3js.eth.Contract(landRegistryABI, landRegistryAddress);
+
+        var accountInterval = setInterval(function() {
+          // Check if account has changed
+          if (web3.eth.accounts[0] !== userAccount) {
+            userAccount = web3.eth.accounts[0];
+            // Call a function to update the UI with the new account
+            getZombiesByOwner(userAccount)
+            .then(displayZombies);
+          }
+        }, 100);
+
+        // Start here
+      }
+
+      function displayZombies(ids) {
+        $("#zombies").empty();
+        for (id of ids) {
+          // Look up zombie details from our contract. Returns a `zombie` object
+          getZombieDetails(id)
+          .then(function(zombie) {
+            // Using ES6's "template literals" to inject variables into the HTML.
+            // Append each one to our #zombies div
+            $("#zombies").append(`<div class="zombie">
+              <ul>
+                <li>Name: ${zombie.name}</li>
+                <li>DNA: ${zombie.dna}</li>
+                <li>Level: ${zombie.level}</li>
+                <li>Wins: ${zombie.winCount}</li>
+                <li>Losses: ${zombie.lossCount}</li>
+                <li>Ready Time: ${zombie.readyTime}</li>
+              </ul>
+            </div>`);
+          });
+        }
+      }
+
+      function checkLandAvailable(address, area) {
+        // This is going to take a while, so update the UI to let the user know
+        // the transaction has been sent
+        $("#txStatus").text("checking land availability....");
+        // Send the tx to our contract:
+        return landRegistry.methods.checkLandAvailable(address, area)
+        .send({ from: userAccount })
+        .on("receipt", function(receipt) {
+          $("#txStatus").text("the entered land is available ");
+          // Transaction was accepted into the blockchain, let's redraw the UI
+          // getZombiesByOwner(userAccount).then(displayZombies);
+        })
+        .on("error", function(error) {
+          // Do something to alert the user their transaction has failed
+          $("#txStatus").text(error);
+        });
+      }
+
+      function feedOnKitty(zombieId, kittyId) {
+        $("#txStatus").text("Eating a kitty. This may take a while...");
+        return cryptoZombies.methods.feedOnKitty(zombieId, kittyId)
+        .send({ from: userAccount })
+        .on("receipt", function(receipt) {
+          $("#txStatus").text("Ate a kitty and spawned a new Zombie!");
+          getZombiesByOwner(userAccount).then(displayZombies);
+        })
+        .on("error", function(error) {
+          $("#txStatus").text(error);
+        });
+      }
+
+      function levelUp(zombieId) {
+        $("#txStatus").text("Leveling up your zombie...");
+        return cryptoZombies.methods.levelUp(zombieId)
+        .send({ from: userAccount, value: web3.utils.toWei("0.001", "ether") })
+        .on("receipt", function(receipt) {
+          $("#txStatus").text("Power overwhelming! Zombie successfully leveled up");
+        })
+        .on("error", function(error) {
+          $("#txStatus").text(error);
+        });
+      }
+
+      function getZombieDetails(id) {
+        return cryptoZombies.methods.zombies(id).call()
+      }
+
+      function zombieToOwner(id) {
+        return cryptoZombies.methods.zombieToOwner(id).call()
+      }
+
+      function getZombiesByOwner(owner) {
+        return cryptoZombies.methods.getZombiesByOwner(owner).call()
+      }
+
+      window.addEventListener('load', function() {
+
+        // Checking if Web3 has been injected by the browser (Mist/MetaMask)
+        if (typeof web3 !== 'undefined') {
+          // Use Mist/MetaMask's provider
+          web3js = new Web3(web3.currentProvider);
+        } else {
+          // Handle the case where the user doesn't have Metamask installed
+          // Probably show them a message prompting them to install Metamask
+        }
+
+        // Now you can start your app & access web3 freely:
+        startApp()
+
+      })
+    </script>
+  </body>
+</html>
+
