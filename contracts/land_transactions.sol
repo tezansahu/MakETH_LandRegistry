@@ -1,15 +1,15 @@
-pragma solidity^0.4.18;
+pragma solidity^"0.5.0";
 
 import "./erc20_tokens.sol";
 import "./land_registration.sol";
 contract landTransactions is land_registry, ERC20Interface{
     mapping (uint => address) landApprovals;
     
-    function totalSupply() public constant returns (uint){
+    function totalSupply() public view returns (uint){
         
     }
     
-    function balanceOf(address _landOwner) public constant returns (uint _balance){
+    function balanceOf(address _landOwner) public view returns (uint _balance){
         return totalValueOfOwner[_landOwner];
     }
     
