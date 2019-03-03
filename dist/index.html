@@ -3,10 +3,24 @@
 <head>
    <meta charset="UTF-8">
    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
    <title>Land Registration DApp</title>
 </head>
 <body>
-   <div id="root"></div>
+   <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="navbar-header">
+            <a class="navbar-brand" style="align-content: center" href="#"><b><i>MakETH</i></b></a>
+      </div>
+      <ul class="nav navbar-nav navbar-right" style="font-size:12pt">
+            <li ><a href="#">Land Registration</a></li>
+            <li style="padding-right: 10px"><a href="#">Land Transactions</a></li>
+      </ul>
+   </nav>
+   <div class="page-header" style="padding-top: 30px"><h1 style="text-align:center"><b>LAND REGISTRATION DAPP</b></h1></div>
+   <div style="text-align: center; color: gray"><i>Only working with Ropsten Testnet</i></div>
+   <div class="container" style="text-align:center" id="root"></div>
    <script src="build.js"></script>
 </body>
 </html>

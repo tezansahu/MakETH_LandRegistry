@@ -1,0 +1,19 @@
+#acc_info{
+    padding: 20px;
+    margin: 20px;
+}
+
+.check_avail_btn{
+    background-color: green;
+    color: white;
+    padding: 10px;
+
+}
+
+#available_text{
+    color: green
+}
+
+#unavailable_text{
+    color: red
+}

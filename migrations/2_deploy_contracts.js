@@ -1,7 +1,7 @@
-const safemath = artifacts.require("./safemath.sol")
-module.exports = function(deployer) {
-	deployer.deploy(safemath);
-};
+// const safemath = artifacts.require("./safemath.sol")
+// module.exports = function(deployer) {
+// 	deployer.deploy(safemath);
+// };
 const land_registration = artifacts.require("./land_registration.sol")
 module.exports = function(deployer) {
 	deployer.deploy(land_registration);

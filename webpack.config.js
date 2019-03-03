@@ -18,5 +18,10 @@ module.exports = {
             presets: ['es2015', 'react', 'stage-2']
          }
       }]
-   }
+   },
+   performance: {
+      hints: false,
+      maxEntrypointSize: 512000,
+      maxAssetSize: 512000
+  }
 }
